@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import wikipedia
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -10,7 +11,9 @@ def clean_query(query):
     for phrase in ["who is", "what is", "tell me about", "define"]:
         query = query.replace(phrase, "")
     return query.strip()
-
+@app.route("/")
+def home():
+    return "Voice Assistant Backend is running!"
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
@@ -35,4 +38,5 @@ def home():
     return "Voice Assistant Backend Running"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
