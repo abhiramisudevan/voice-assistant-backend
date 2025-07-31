@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Voice Assistant</title>
+</head>
+<body>
+  <h2>🎤 Ask Me Anything</h2>
+  <button onclick="record()">Speak</button>
+  <p id="userText"></p>
+  <p id="response"></p>
+
+  <script>
+    function record() {
+      const recognition = new webkitSpeechRecognition();  // For Chrome
+      recognition.lang = 'en-US';
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById("userText").innerText = "You said: " + text;
+
+        fetch("http://127.0.0.1:5000/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ query: text })
+        })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("response").innerText = "Assistant: " + data.answer;
+
+          // Speak out loud
+          const msg = new SpeechSynthesisUtterance(data.answer);
+          speechSynthesis.speak(msg);
+        });
+      };
+    }
+  </script>
+</body>
+</html>
